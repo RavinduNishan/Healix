@@ -2,40 +2,35 @@
 from adafruit_servokit import ServoKit
 import time
 
-kit = ServoKit(channels=16)
+kit = ServoKit(channels=16, address=0x40)
 
-SERVO_CH = 3       # 4th servo
-START_ANGLE = 0
-END_ANGLE = 45
-STEP = 1           # 1 degree step (smaller = slower)
-DELAY = 0.05       # increase this to make it EVEN slower
+TEST_SERVO = 1
 
-# Turn OFF all other channels
+# Disable all channels first
 for ch in range(16):
-    if ch != SERVO_CH:
-        kit.servo[ch].angle = None
+    kit.servo[ch].angle = None
 
-# Set safe pulse width for MG996R
-kit.servo[SERVO_CH].set_pulse_width_range(500, 2500)
+# Configure servo carefully
+servo = kit.servo[TEST_SERVO]
+servo.set_pulse_width_range(1000, 2000)
+servo.actuation_range = 180
 
-print("Only 4th servo is moving VERY SLOWLY")
+print("Waiting before enabling servo...")
+time.sleep(2)
 
-try:
-    while True:
-        # Move forward slowly
-        for angle in range(START_ANGLE, END_ANGLE + 1, STEP):
-            kit.servo[SERVO_CH].angle = angle
-            time.sleep(DELAY)
+# Enable gently
+servo.angle = 0
+time.sleep(1)
 
-        time.sleep(1)
+print("Smooth motion starting")
 
-        # Move backward slowly
-        for angle in range(END_ANGLE, START_ANGLE - 1, -STEP):
-            kit.servo[SERVO_CH].angle = angle
-            time.sleep(DELAY)
+while True:
+    for angle in range(0, 91):
+        servo.angle = angle
+        time.sleep(0.05)
+    time.sleep(1)
 
-        time.sleep(1)
-
-except KeyboardInterrupt:
-    kit.servo[SERVO_CH].angle = None
-    print("\nStopped safely")
+    for angle in range(90, -1, -1):
+        servo.angle = angle
+        time.sleep(0.05)
+    time.sleep(1)
