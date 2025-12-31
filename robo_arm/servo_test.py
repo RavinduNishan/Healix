@@ -2,33 +2,40 @@
 from adafruit_servokit import ServoKit
 import time
 
-# Initialize (address=0x40 is default for PCA9685)
-kit = ServoKit(channels=16, address=0x40)
+kit = ServoKit(channels=16)
 
-# === DISABLE ALL CHANNELS EXCEPT 4 (servos go limp/no PWM) ===
+SERVO_CH = 3       # 4th servo
+START_ANGLE = 0
+END_ANGLE = 45
+STEP = 1           # 1 degree step (smaller = slower)
+DELAY = 0.05       # increase this to make it EVEN slower
+
+# Turn OFF all other channels
 for ch in range(16):
-    if ch != 4:
-        kit.servo[ch].angle = None  # No pulse = fully OFF
+    if ch != SERVO_CH:
+        kit.servo[ch].angle = None
 
-# Set safe pulse range for MG996R (0°=1ms, 180°=2ms; change for 45° max)
-kit.servo[4].set_pulse_width_range(1000, 2000)
-# For 0°–45° only: kit.servo[4].set_pulse_width_range(1000, 1250)
+# Set safe pulse width for MG996R
+kit.servo[SERVO_CH].set_pulse_width_range(500, 2500)
 
-print("TEST STARTED → ONLY CHANNEL 4 ACTIVE")
-print("All others 100% OFF (limp & silent). Servo on ch4 should sweep...")
+print("Only 4th servo is moving VERY SLOWLY")
 
 try:
     while True:
-        print("Channel 4 → 180°")
-        kit.servo[4].angle = 180  # Or 45 for limited range
-        time.sleep(2)
-        print("Channel 4 → 0°")
-        kit.servo[4].angle = 0
-        time.sleep(2)
+        # Move forward slowly
+        for angle in range(START_ANGLE, END_ANGLE + 1, STEP):
+            kit.servo[SERVO_CH].angle = angle
+            time.sleep(DELAY)
+
+        time.sleep(1)
+
+        # Move backward slowly
+        for angle in range(END_ANGLE, START_ANGLE - 1, -STEP):
+            kit.servo[SERVO_CH].angle = angle
+            time.sleep(DELAY)
+
+        time.sleep(1)
+
 except KeyboardInterrupt:
-    print("\nStopped by user")
-finally:
-    # Cleanup: All channels OFF
-    for ch in range(16):
-        kit.servo[ch].angle = None
-    print("All servos OFF")
+    kit.servo[SERVO_CH].angle = None
+    print("\nStopped safely")
