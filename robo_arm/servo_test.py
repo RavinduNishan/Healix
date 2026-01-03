@@ -2,33 +2,35 @@
 from adafruit_servokit import ServoKit
 import time
 
-# Initialize (address=0x40 is default for PCA9685)
 kit = ServoKit(channels=16, address=0x40)
 
-# === DISABLE ALL CHANNELS EXCEPT 4 (servos go limp/no PWM) ===
+TEST_SERVO = 1
+
+# Disable all channels first
 for ch in range(16):
-    if ch != 4:
-        kit.servo[ch].angle = None  # No pulse = fully OFF
+    kit.servo[ch].angle = None
 
-# Set safe pulse range for MG996R (0°=1ms, 180°=2ms; change for 45° max)
-kit.servo[4].set_pulse_width_range(1000, 2000)
-# For 0°–45° only: kit.servo[4].set_pulse_width_range(1000, 1250)
+# Configure servo carefully
+servo = kit.servo[TEST_SERVO]
+servo.set_pulse_width_range(1000, 2000)
+servo.actuation_range = 180
 
-print("TEST STARTED → ONLY CHANNEL 4 ACTIVE")
-print("All others 100% OFF (limp & silent). Servo on ch4 should sweep...")
+print("Waiting before enabling servo...")
+time.sleep(2)
 
-try:
-    while True:
-        print("Channel 4 → 180°")
-        kit.servo[4].angle = 180  # Or 45 for limited range
-        time.sleep(2)
-        print("Channel 4 → 0°")
-        kit.servo[4].angle = 0
-        time.sleep(2)
-except KeyboardInterrupt:
-    print("\nStopped by user")
-finally:
-    # Cleanup: All channels OFF
-    for ch in range(16):
-        kit.servo[ch].angle = None
-    print("All servos OFF")
+# Enable gently
+servo.angle = 0
+time.sleep(1)
+
+print("Smooth motion starting")
+
+while True:
+    for angle in range(0, 91):
+        servo.angle = angle
+        time.sleep(0.05)
+    time.sleep(1)
+
+    for angle in range(90, -1, -1):
+        servo.angle = angle
+        time.sleep(0.05)
+    time.sleep(1)
