@@ -1,0 +1,16 @@
+[Unit]
+Description=Healix Smart Glove Accelerometer Service
+After=network.target
+
+[Service]
+Type=simple
+User=isuru
+WorkingDirectory=/home/isuru/Healix/smart_glove
+ExecStart=/home/isuru/Healix/smart_glove/.venv/bin/python /home/isuru/Healix/smart_glove/accelerometer_data.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
