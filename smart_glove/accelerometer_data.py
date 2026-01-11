@@ -4,7 +4,7 @@ import json
 from firebase_admin import credentials, db, initialize_app
 
 # --- Firebase Setup ---
-cred = credentials.Certificate("/home/isuru/Healix/smart_glove/healix-e3ba5-firebase-adminsdk-fbsvc-b50fbbd766.json")
+cred = credentials.Certificate("/home/isuru/Healix/smart_glove/healix-e3ba5-firebase-adminsdk-fbsvc-52208db28c.json")
 initialize_app(cred, {'databaseURL': 'https://healix-e3ba5-default-rtdb.firebaseio.com/'})
 ref = db.reference('patient_data')
 
