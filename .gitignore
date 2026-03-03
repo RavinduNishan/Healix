@@ -1,3 +1,17 @@
 .vscode-server/
 .vscode-server/
 smart_glove/*.json
+
+# Python virtual environments
+vision_env/
+venv/
+env/
+
+# Large installer files
+*.sh
+Miniconda3-*.sh
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
