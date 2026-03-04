@@ -14,7 +14,7 @@ CAM_BASE = 5   # Only camera servo now
 # INITIAL ANGLES
 # =============================
 angles = {
-    BASE: 118,
+    BASE: 90,
     SHOULDER: 147,
     ELBOW: 180,
     WRIST: 124,
@@ -100,8 +100,8 @@ try:
         key = get_key()
 
         # ARM
-        if key == 'a': move(BASE, -STEP)
-        elif key == 'd': move(BASE, STEP)
+        if key == 'a': move(BASE, STEP)
+        elif key == 'd': move(BASE, -STEP)
 
         elif key == 'w': move(SHOULDER, STEP)
         elif key == 's': move(SHOULDER, -STEP)
@@ -112,8 +112,8 @@ try:
         elif key == 't': move(WRIST, STEP)
         elif key == 'g': move(WRIST, -STEP)
 
-        elif key == 'o': move(GRIPPER, -STEP)
-        elif key == 'c': move(GRIPPER, STEP)
+        elif key == 'o': move(GRIPPER, STEP)
+        elif key == 'c': move(GRIPPER, -STEP)
 
         # CAMERA BASE
         elif key == 'j': move(CAM_BASE, -STEP)
