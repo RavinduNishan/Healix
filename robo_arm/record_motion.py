@@ -6,13 +6,15 @@ import json
 from adafruit_servokit import ServoKit
 
 BASE, SHOULDER, ELBOW, WRIST, GRIPPER = 0, 1, 2, 3, 4
+CAM_BASE = 5   # Only camera servo now
 
 angles = {
-    BASE: 130,
-    SHOULDER: 145,
+    BASE: 90,
+    SHOULDER: 147,
     ELBOW: 180,
     WRIST: 124,
-    GRIPPER: 0
+    GRIPPER: 0,
+    CAM_BASE: 91
 }
 
 LIMITS = {
@@ -20,7 +22,8 @@ LIMITS = {
     SHOULDER: (0, 180),
     ELBOW: (0, 180),
     WRIST: (0, 180),
-    GRIPPER: (0, 180)
+    GRIPPER: (0, 180),
+    CAM_BASE: (10, 170)   # SG90 safe range
 }
 
 STEP = 2
@@ -50,12 +53,18 @@ input()
 
 kit = ServoKit(channels=16)
 
+kit.servo[BASE].set_pulse_width_range(450, 2550)
+
 for ch, ang in angles.items():
     kit.servo[ch].angle = ang
     time.sleep(0.2)
 
 print("🎥 Recording started")
-print("Press Q to stop & save")
+print("""Controls:
+ARM: a/d (Base), w/s (Shoulder), e/r (Elbow), t/g (Wrist), o/c (Gripper)
+CAMERA: j/l (Camera Base)
+q to stop & save
+""")
 
 last_record = time.time()
 
@@ -63,16 +72,21 @@ try:
     while True:
         key = get_key()
 
-        if key == 'a': move(BASE, -STEP)
-        elif key == 'd': move(BASE, STEP)
+        if key == 'a': move(BASE, STEP)
+        elif key == 'd': move(BASE, -STEP)
         elif key == 'w': move(SHOULDER, STEP)
         elif key == 's': move(SHOULDER, -STEP)
         elif key == 'e': move(ELBOW, STEP)
         elif key == 'r': move(ELBOW, -STEP)
         elif key == 't': move(WRIST, STEP)
         elif key == 'g': move(WRIST, -STEP)
-        elif key == 'o': move(GRIPPER, -STEP)
-        elif key == 'c': move(GRIPPER, STEP)
+        elif key == 'o': move(GRIPPER, STEP)
+        elif key == 'c': move(GRIPPER, -STEP)
+        
+        # CAMERA BASE
+        elif key == 'j': move(CAM_BASE, -STEP)
+        elif key == 'l': move(CAM_BASE, STEP)
+        
         elif key == 'q':
             break
 
