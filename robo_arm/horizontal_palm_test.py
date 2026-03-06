@@ -1,7 +1,6 @@
 from picamera2 import Picamera2
 import cv2
 import mediapipe as mp
-import numpy as np
 
 mp_hands = mp.solutions.hands
 mp_draw = mp.solutions.drawing_utils
@@ -12,78 +11,57 @@ hands = mp_hands.Hands(
     min_tracking_confidence=0.7
 )
 
+# Camera setup
 picam2 = Picamera2()
-picam2.preview_configuration.main.size = (640, 480)
+picam2.preview_configuration.main.size = (640,480)
 picam2.preview_configuration.main.format = "RGB888"
 picam2.configure("preview")
 picam2.start()
 
-print("Horizontal Plate Palm Detection Started")
+print("Palm + Straight Horizontal Fingers Detection Started")
+
+# ----------- Check if fingers extended horizontally -----------
+
+def fingers_horizontal_extended(lm):
+    # Get fingertip positions (index, middle, ring, pinky)
+    tips = [8, 12, 16, 20]
+    
+    # Check 1: All fingertips should be in a horizontal line (similar y-coordinates)
+    ys = [lm.landmark[i].y for i in tips]
+    y_diff = max(ys) - min(ys)
+    
+    if y_diff > 0.1:  # Allow some tolerance
+        return False
+    
+    # Check 2: Fingertips should be extended outward (check x spread)
+    xs = [lm.landmark[i].x for i in tips]
+    x_spread = max(xs) - min(xs)
+    
+    # Fingers should span a reasonable width when extended
+    if x_spread < 0.15:
+        return False
+    
+    return True
 
 
-# --------------------------
-# Helpers
-# --------------------------
-
-def is_finger_extended(lm, tip, pip):
-    return lm.landmark[tip].y < lm.landmark[pip].y
-
-def fingers_open(lm):
-    fingers = [(8,6),(12,10),(16,14),(20,18)]
-    return all(is_finger_extended(lm,t,p) for t,p in fingers)
-
-
-def is_horizontal_plate_palm(lm):
-
-    wrist = np.array([lm.landmark[0].x,
-                      lm.landmark[0].y,
-                      lm.landmark[0].z])
-
-    index_mcp = np.array([lm.landmark[5].x,
-                          lm.landmark[5].y,
-                          lm.landmark[5].z])
-
-    pinky_mcp = np.array([lm.landmark[17].x,
-                          lm.landmark[17].y,
-                          lm.landmark[17].z])
-
-    # Palm plane vectors
-    v1 = index_mcp - wrist
-    v2 = pinky_mcp - wrist
-
-    normal = np.cross(v1, v2)
-    normal = normal / np.linalg.norm(normal)
-
-    nx, ny, nz = normal
-
-    # Plate hand condition:
-    # Palm surface facing UP (normal mostly vertical)
-    vertical_normal = abs(ny) > 0.7
-
-    # Should NOT face camera strongly
-    not_camera_facing = abs(nz) < 0.4
-
-    # Should NOT be sideways
-    not_sideways = abs(nx) < 0.6
-
-    return vertical_normal and not_camera_facing and not_sideways
-
-
-# --------------------------
-# Main Loop
-# --------------------------
+# ----------- Main loop -----------
 
 while True:
+
     frame = picam2.capture_array()
+
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
     results = hands.process(rgb)
 
     if results.multi_hand_landmarks:
+
         for lm in results.multi_hand_landmarks:
 
             mp_draw.draw_landmarks(frame, lm, mp_hands.HAND_CONNECTIONS)
 
-            if fingers_open(lm) and is_horizontal_plate_palm(lm):
+            if fingers_horizontal_extended(lm):
+
                 cv2.putText(frame,
                             "READY FOR BISCUIT",
                             (40,100),
@@ -91,7 +69,9 @@ while True:
                             1,
                             (0,255,0),
                             3)
+
             else:
+
                 cv2.putText(frame,
                             "Palm Not Valid",
                             (40,100),
@@ -100,7 +80,7 @@ while True:
                             (0,0,255),
                             2)
 
-    cv2.imshow("Plate Palm Detection", frame)
+    cv2.imshow("Palm Detection", frame)
 
     if cv2.waitKey(1) & 0xFF == 27:
         break

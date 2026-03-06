@@ -14,7 +14,7 @@ kit = ServoKit(channels=16)
 # Configure BASE servo pulse width range (same as record mode)
 kit.servo[BASE].set_pulse_width_range(450, 2550)
 
-with open("motions/get_and_handover.json", "r") as f:
+with open("motions/give_biscuit.json", "r") as f:
     motion = json.load(f)
 
 start_time = motion[0]["time"]

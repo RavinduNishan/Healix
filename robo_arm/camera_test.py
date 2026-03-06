@@ -1,17 +1,25 @@
+from picamera2 import Picamera2
 import cv2
 
-cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+# Initialize camera
+picam2 = Picamera2()
+
+# Camera configuration
+picam2.configure(picam2.create_preview_configuration(
+    main={"size": (640, 480)}
+))
+
+picam2.start()
+
+print("Camera started. Press Q to exit.")
 
 while True:
-    ret, frame = cap.read()
-    if not ret:
-        print("Failed to grab frame")
-        break
+    frame = picam2.capture_array()
 
-    cv2.imshow("Camera Test", frame)
+    cv2.imshow("Raspberry Pi Camera", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-cap.release()
 cv2.destroyAllWindows()
+picam2.stop()
