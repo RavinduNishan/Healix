@@ -104,7 +104,7 @@ except KeyboardInterrupt:
     pass
 
 # Save motion
-with open("motions/give_biscuit.json", "w") as f:
+with open("motions/give_biscuit3.json", "w") as f:
     json.dump(motion, f, indent=2)
 
 print("✅ Motion saved as give_biscuit.json")

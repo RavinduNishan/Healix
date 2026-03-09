@@ -5,7 +5,7 @@ Smart Biscuit Handover System
 Integrates motion replay with hand detection for safe biscuit handover.
 
 Flow:
-1. Load recorded motion from give_biscuit.json
+1. Load recorded motion from give_biscuit3.json
 2. Play motion until handover position (all 6 channels match exact position)
 3. PAUSE and detect horizontal palm hand gesture
 4. Wait for hand to remain stable for 5 seconds
@@ -31,12 +31,12 @@ STEP_DELAY = 0.05             # Delay between motion steps (seconds) - increase 
 
 # Exact position to pause for hand detection (all 6 channels must match)
 HANDOVER_POSITION = {
-    '0': 180,   # Base
-    '1': 85,    # Shoulder
-    '2': 138,   # Channel 2
+    '0': 156,   # Base
+    '1': 107,   # Shoulder
+    '2': 166,   # Channel 2
     '3': 124,   # Channel 3
-    '4': 20,    # Gripper (partially open)
-    '5': 81     # Camera
+    '4': 0,     # Gripper (closed, holding biscuit)
+    '5': 71     # Camera
 }
 # ====================================
 
@@ -55,7 +55,7 @@ kit = ServoKit(channels=16)
 kit.servo[BASE].set_pulse_width_range(450, 2550)
 
 # Motion file path
-MOTION_FILE = "motions/give_biscuit.json"
+MOTION_FILE = "motions/give_biscuit3.json"
 
 # Initialize MediaPipe Hands (same parameters as horizontal_palm_test.py)
 mp_hands = mp.solutions.hands
