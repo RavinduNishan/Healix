@@ -90,6 +90,16 @@ try:
         elif key == 'q':
             break
 
+        print(
+            f"\rB:{angles[BASE]:3d} "
+            f"S:{angles[SHOULDER]:3d} "
+            f"E:{angles[ELBOW]:3d} "
+            f"W:{angles[WRIST]:3d} "
+            f"G:{angles[GRIPPER]:3d} "
+            f"CB:{angles[CAM_BASE]:3d} ",
+            end=""
+        )
+
         now = time.time()
         if now - last_record >= RECORD_INTERVAL:
             motion.append({
@@ -104,7 +114,7 @@ except KeyboardInterrupt:
     pass
 
 # Save motion
-with open("motions/give_biscuit3.json", "w") as f:
+with open("motions/give_biscuit1.json", "w") as f:
     json.dump(motion, f, indent=2)
 
 print("✅ Motion saved as give_biscuit.json")
