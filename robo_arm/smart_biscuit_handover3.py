@@ -56,6 +56,7 @@ kit.servo[BASE].set_pulse_width_range(450, 2550)
 
 # Motion file path
 MOTION_FILE = "motions/give_biscuit1.json"
+NOT_HAND_DETECT_FILE = "motions/not_hand_detect.json"
 
 # Initialize MediaPipe Hands (same parameters as horizontal_palm_test.py)
 mp_hands = mp.solutions.hands
@@ -288,6 +289,22 @@ def play_motion_segment(start_step, end_step, reverse=False):
         time.sleep(STEP_DELAY)
 
 
+def play_motion_file(filepath):
+    """
+    Load and play all steps from a motion JSON file.
+    """
+    print(f"   Loading motion from: {filepath}")
+    with open(filepath, 'r') as f:
+        steps = json.load(f)
+    print(f"   Playing {len(steps)} steps...")
+    for step in steps:
+        angles = step['angles']
+        for channel_str, angle in angles.items():
+            channel = int(channel_str)
+            kit.servo[channel].angle = angle
+        time.sleep(STEP_DELAY)
+
+
 # ============================================================
 # MAIN EXECUTION
 # ============================================================
@@ -350,11 +367,10 @@ if hand_ready:
     print("\n✅ HANDOVER COMPLETE - Biscuit released!")
     
 else:
-    # Step 4b: No hand detected - Return biscuit
-    print("\n⚠️  No hand detected - Returning biscuit to safe position")
-    print(f"   Reversing motion: step {handover_pause_idx} → 0")
-    play_motion_segment(0, handover_pause_idx, reverse=True)
-    print("\n🔙 HANDOVER CANCELLED - Biscuit returned safely")
+    # Step 4b: No hand detected - Run not_hand_detect motion
+    print("\n⚠️  No hand detected - Running not_hand_detect motion")
+    play_motion_file(NOT_HAND_DETECT_FILE)
+    print("\n🔙 HANDOVER CANCELLED - not_hand_detect motion complete")
 
 # Cleanup
 print("\n🧹 Cleaning up...")
