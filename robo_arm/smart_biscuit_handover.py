@@ -67,11 +67,12 @@ hands = mp_hands.Hands(
     min_tracking_confidence=HAND_TRACKING_CONFIDENCE
 )
 
-# Initialize camera
+# Initialize camera (same setup as horizontal_palm_test.py)
 print("📷 Initializing camera...")
 picam2 = Picamera2()
-config = picam2.create_preview_configuration(main={"size": (640, 480), "format": "RGB888"})
-picam2.configure(config)
+picam2.preview_configuration.main.size = (640, 480)
+picam2.preview_configuration.main.format = "RGB888"
+picam2.configure("preview")
 picam2.start()
 time.sleep(2)  # Camera warm-up
 
@@ -127,9 +128,9 @@ def check_hand_ready():
     if frame is None:
         return False, None, False
     
-    # Convert to RGB for MediaPipe
-    image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    results = hands.process(image_rgb)
+    # Convert BGR to RGB for MediaPipe (same as horizontal_palm_test.py)
+    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = hands.process(rgb)
     
     hand_detected = False
     hand_ready = False
