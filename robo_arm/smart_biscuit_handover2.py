@@ -31,12 +31,12 @@ STEP_DELAY = 0.05             # Delay between motion steps (seconds) - increase 
 
 # Exact position to pause for hand detection (all 6 channels must match)
 HANDOVER_POSITION = {
-    '0': 156,   # Base
-    '1': 107,   # Shoulder
-    '2': 166,   # Channel 2
+    '0': 158,   # Base
+    '1': 77,   # Shoulder
+    '2': 136,   # Channel 2
     '3': 124,   # Channel 3
     '4': 0,     # Gripper (closed, holding biscuit)
-    '5': 71     # Camera
+    '5': 27     # Camera
 }
 # ====================================
 

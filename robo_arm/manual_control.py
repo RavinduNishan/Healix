@@ -19,7 +19,7 @@ angles = {
     ELBOW: 180,
     WRIST: 124,
     GRIPPER: 0,
-    CAM_BASE: 91
+    CAM_BASE: 83
 }
 
 # =============================

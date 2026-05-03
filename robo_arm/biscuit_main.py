@@ -21,8 +21,8 @@ from picamera2 import Picamera2
 
 # ========== CONFIGURATION ==========
 MODEL_PATH = "models/best.pt"
-CAMERA_HOME = 93         # Camera home angle (channel 5)
-CAMERA_BISCUIT = 161     # Camera angle to view biscuits
+CAMERA_HOME = 83         # Camera home angle (channel 5)
+CAMERA_BISCUIT = 133     # Camera angle to view biscuits
 CAMERA_CHANNEL = 5
 DETECTION_CONFIDENCE = 0.6
 DETECTION_FRAMES = 10    # Number of frames to sample for reliable detection
