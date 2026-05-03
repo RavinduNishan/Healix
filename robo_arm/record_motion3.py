@@ -14,7 +14,7 @@ angles = {
     ELBOW: 180,
     WRIST: 124,
     GRIPPER: 0,
-    CAM_BASE: 91
+    CAM_BASE: 83
 }
 
 LIMITS = {
@@ -114,7 +114,7 @@ except KeyboardInterrupt:
     pass
 
 # Save motion
-with open("motions/not_hand_detect.json", "w") as f:
+with open("motions/give_biscuit1.json", "w") as f:
     json.dump(motion, f, indent=2)
 
-print("✅ Motion saved as give_biscuit.json")
+print("✅ Motion saved as give_biscuit1.json")
