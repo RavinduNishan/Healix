@@ -131,15 +131,15 @@ script = None
 
 if detected_class == "three_biscuit":
     print("3 biscuits detected -> Running handover with give_biscuit3.json")
-    script = "smart_biscuit_handover.py"
+    script = "final_handover.py"
 
 elif detected_class == "two_biscuit":
     print("2 biscuits detected -> Running handover with give_biscuit2.json")
-    script = "smart_biscuit_handover2.py"
+    script = "final_handover2.py"
 
 elif detected_class == "one_biscuit":
     print("1 biscuit detected -> Running handover with give_biscuit1.json")
-    script = "smart_biscuit_handover3.py"
+    script = "final_handover3.py"
 
 else:
     print(f"No biscuit detected (result: {detected_class})")

@@ -1,6 +1,23 @@
 from flask import Flask
 import subprocess
 import sys
+import time
+from adafruit_servokit import ServoKit
+
+# ========== ROBOT ARM INITIALIZATION ==========
+# Configuration
+CAMERA_HOME = 83
+
+# Initialize servo
+kit = ServoKit(channels=16)
+
+HOME_ANGLES = {0: 90, 1: 147, 2: 180, 3: 124, 4: 0, 5: CAMERA_HOME}
+
+# Move all servos to home position
+for ch, ang in HOME_ANGLES.items():
+    kit.servo[ch].angle = ang
+    time.sleep(0.2)
+# ============================================
 
 app = Flask(__name__)
 
@@ -51,4 +68,4 @@ def run_biscuit():
     </html>
     """
 
-app.run(host='0.0.0.0', port=5000)
+app.run(host='0.0.0.0', port=5001)
