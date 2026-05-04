@@ -20,6 +20,9 @@ import time
 import json
 from adafruit_servokit import ServoKit
 from picamera2 import Picamera2
+import board
+import busio
+import adafruit_vl53l0x
 
 # ========== CONFIGURATION ==========
 # Hand Detection settings from hand_test.py
@@ -32,6 +35,8 @@ SHOW_CAMERA_WINDOW = True
 HAND_WAIT_TIMEOUT = 60      # Maximum wait time for hand (seconds)
 HAND_STABLE_DURATION = 4    # How long hand must stay steady (seconds)
 STEP_DELAY = 0.05           # Delay between motion steps
+DISTANCE_MIN_MM = 80        # Minimum distance for handover (mm)
+DISTANCE_MAX_MM = 250       # Maximum distance for handover (mm)
 
 # Exact position to pause for hand detection
 HANDOVER_POSITION = {
@@ -58,6 +63,16 @@ print("⚙️  Initializing servo kit...")
 kit = ServoKit(channels=16)
 kit.servo[BASE].set_pulse_width_range(450, 2550)
 print("✅ Servo kit initialized.")
+
+# Initialize VL53L0X sensor
+print("🛰️  Initializing VL53L0X sensor...")
+try:
+    i2c = busio.I2C(board.SCL, board.SDA)
+    vl53 = adafruit_vl53l0x.VL53L0X(i2c)
+    print("✅ VL53L0X sensor initialized.")
+except Exception as e:
+    print(f"❌ Failed to initialize VL53L0X sensor: {e}")
+    exit(1)
 
 # Initialize MediaPipe Hands
 print("🖐️ Initializing MediaPipe Hands...")
@@ -117,7 +132,7 @@ def detect_hand(frame):
 
 def wait_for_stable_hand(timeout, stable_duration):
     """
-    Waits for a hand to be detected and held stable for a specific duration.
+    Waits for a hand to be detected at the correct distance and held stable.
     """
     print(f"👋 Looking for a hand... (Timeout: {timeout}s, Stability: {stable_duration}s)")
     start_time = time.time()
@@ -127,16 +142,20 @@ def wait_for_stable_hand(timeout, stable_duration):
         frame = picam2.capture_array()
         if frame is None:
             continue
-            
+        
+        # Check distance first
+        distance = vl53.range
+        distance_ok = DISTANCE_MIN_MM <= distance <= DISTANCE_MAX_MM
+        
         hand_found, processed_frame = detect_hand(frame)
         
-        status_text = ""
+        status_text = f"Dist: {distance}mm"
         
-        if hand_found:
+        if distance_ok and hand_found:
             if stable_start_time is None:
                 # Start the stability timer
                 stable_start_time = time.time()
-                print("✋ Hand detected! Checking for stability...")
+                print("✋ Hand detected in range! Checking for stability...")
             
             elapsed_stable_time = time.time() - stable_start_time
             
@@ -148,23 +167,33 @@ def wait_for_stable_hand(timeout, stable_duration):
             else:
                 # Show countdown
                 remaining = stable_duration - elapsed_stable_time
-                status_text = f"HOLD STEADY: {remaining:.1f}s"
+                status_text += f" | HOLD: {remaining:.1f}s"
         else:
-            # Hand lost, reset stability timer
+            # Condition not met, reset stability timer
             if stable_start_time is not None:
-                print("⚠️  Hand lost. Resetting stability timer.")
+                print("⚠️  Hand lost or out of range. Resetting stability timer.")
             stable_start_time = None
-            status_text = "No Hand Detected"
+            if not distance_ok:
+                status_text += " | Too close/far"
+            if not hand_found:
+                status_text += " | No Hand"
 
         if SHOW_CAMERA_WINDOW:
+            # Green if all good, yellow if waiting for stability, red otherwise
+            color = (0, 0, 255) # Red
+            if distance_ok and hand_found:
+                color = (0, 255, 255) # Yellow
+                if stable_start_time and (time.time() - stable_start_time) >= stable_duration:
+                    color = (0, 255, 0) # Green
+
             cv2.putText(processed_frame, status_text, (10, 30), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0) if hand_found else (0, 0, 255), 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
             cv2.imshow("Hand Detection", processed_frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 print("❌ User cancelled.")
                 return False
                 
-    print("⏱️  Timeout reached. No stable hand was detected.")
+    print("⏱️  Timeout reached. No stable hand was detected in the correct range.")
     return False
 
 def play_motion(motion_data, start_step=0, end_step=None):

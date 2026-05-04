@@ -4,12 +4,20 @@ import time
 import subprocess
 import sys
 
+# Keywords that trigger the biscuit handover
+TRIGGER_WORDS = [
+    "biscuit", "snacks", "cookie", "cracker", "treat", "food",
+    "need biscuit", "need snacks", "give me snacks", "want snacks",
+    "give me a biscuit", "want a biscuit", "give me a snack", "want a snack",
+    "hungry", "eat", "something to eat"
+]
+
 def listen_for_command():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         print("Adjusting for ambient noise... Please wait.")
         recognizer.adjust_for_ambient_noise(source, duration=2)
-        print("Listening for 'biscuit' (Speak clearly into the microphone)...")
+        print(f"Listening for trigger words (e.g., {', '.join(TRIGGER_WORDS)})...")
         
         try:
             # Listen indefinitely but evaluate in chunks
@@ -20,8 +28,8 @@ def listen_for_command():
             text = recognizer.recognize_google(audio).lower()
             print(f"I heard: '{text}'")
             
-            # Check if the word "biscuit" was spoken
-            if "biscuit" in text:
+            # Check if any of the trigger words are in the recognized text
+            if any(word in text for word in TRIGGER_WORDS):
                 print("Command recognized! Triggering biscuit handover...")
                 return True
                 
