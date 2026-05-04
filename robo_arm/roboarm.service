@@ -1,0 +1,13 @@
+[Unit]
+Description=Robo Arm Web Control
+After=network.target multi-user.target
+
+[Service]
+User=isuru
+Group=www-data
+WorkingDirectory=/home/isuru/Healix/robo_arm
+ExecStart=/home/isuru/Healix/robo_arm/vision_env/bin/python /home/isuru/Healix/robo_arm/app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
