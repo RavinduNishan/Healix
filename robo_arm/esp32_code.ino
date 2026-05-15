@@ -20,7 +20,7 @@
 
 
 // ---------------- ROBOT SERVER ----------------
-String serverName = "http://10.246.170.43:5000/run_script";
+String serverName = "http://10.142.69.43:5000/run_script";
 
 // ---------------- PINS ----------------
 #define PRESSURE_PIN 35

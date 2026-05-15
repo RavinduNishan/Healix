@@ -179,15 +179,21 @@ def wait_for_stable_hand(timeout, stable_duration):
                 status_text += " | No Hand"
 
         if SHOW_CAMERA_WINDOW:
-            # Green if all good, yellow if waiting for stability, red otherwise
-            color = (0, 0, 255) # Red
-            if distance_ok and hand_found:
-                color = (0, 255, 255) # Yellow
-                if stable_start_time and (time.time() - stable_start_time) >= stable_duration:
-                    color = (0, 255, 0) # Green
+            dist_color = (0, 255, 0) if distance_ok else (0, 0, 255)
+            cv2.putText(processed_frame, f"Distance: {distance}mm (Safe: {distance_ok})", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, dist_color, 2)
+            
+            palm_color = (0, 255, 0) if hand_found else (0, 0, 255)
+            cv2.putText(processed_frame, f"Open Palm: {hand_found}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, palm_color, 2)
+            
+            hold_ok = stable_start_time and (time.time() - stable_start_time) >= stable_duration
+            hold_color = (0, 255, 0) if hold_ok else ((0, 255, 255) if stable_start_time else (0, 0, 255))
+            if stable_start_time:
+                remaining = max(0.0, stable_duration - (time.time() - stable_start_time))
+                hold_text = f"Hold Time OK: {hold_ok} ({remaining:.1f}s left)"
+            else:
+                hold_text = f"Hold Time OK: False (Waiting for palm & safe dist)"
+            cv2.putText(processed_frame, hold_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, hold_color, 2)
 
-            cv2.putText(processed_frame, status_text, (10, 30), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
             cv2.imshow("Hand Detection", processed_frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 print("❌ User cancelled.")
