@@ -114,7 +114,7 @@ except KeyboardInterrupt:
     pass
 
 # Save motion
-with open("motions/not_hand_detect.json", "w") as f:
+with open("motions/give_biscuit2.json", "w") as f:
     json.dump(motion, f, indent=2)
 
-print("✅ Motion saved as not_hand_detect.json")
+print("✅ Motion saved as give_biscuit2.json")
